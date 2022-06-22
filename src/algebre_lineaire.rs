@@ -1,24 +1,10 @@
 /* Question 1 */
 pub fn position(i: usize, j:usize, n:usize) -> usize {
 
-    assert!(i < n && i > 0);
-    assert!(j < n && j > 0);
+    assert!(i < n+1 && i > 0);
+    assert!(j < n+1 && j > 0);
 
-    let mut position: i32 = -1;
-
-    for column in 0..n {
-
-        for row in 0..n {
-
-            if column == i-1 && row == j-1 {
-                position += 1;
-                println!("position: {}", position);
-                return position as usize;
-            }
-            position += 1;
-        }
-    }
-    return 0;
+    return (i - 1) * 3 + (j - 1);
 }
 
 /* Question 2 */
