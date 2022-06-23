@@ -31,6 +31,7 @@ fn alea_number() -> u8 {
         for j in 0..3 {
             if alea[j] < number { alea[j] = number; }
         }
+        return 0;
     }
 
     return alea[0] + alea[1] + alea[2];
