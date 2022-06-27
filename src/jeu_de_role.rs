@@ -1,13 +1,20 @@
 use rand::{thread_rng, Rng};
-use std::collections::HashMap;
 use std::ops::Index;
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct Pers {
     nom: String,
-    characteristique: HashMap<u32, BuildingType>
+    force: (u8, Option<i8>),
+    dexterite: (u8, Option<i8>),
+    constitution: (u8, Option<i8>),
+    intelligence: (u8, Option<i8>),
+    sagesse: (u8, Option<i8>),
+    charisme: (u8, Option<i8>),
+    competence: Vec<Competence>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum Competence {
     Acrobaties,
@@ -20,14 +27,14 @@ impl Pers {
 
         return Pers {
             nom: nom,
-            force: Pers::alea_number(),
-            dexterite: Pers::alea_number(),
-            constitution: Pers::alea_number(),
-            intelligence: Pers::alea_number(),
-            sagesse: Pers::alea_number(),
-            charisme: Pers::alea_number(),
+            force: (Pers::alea_number(), None),
+            dexterite: (Pers::alea_number(), None),
+            constitution: (Pers::alea_number(), None),
+            intelligence: (Pers::alea_number(), None),
+            sagesse: (Pers::alea_number(), None),
+            charisme: (Pers::alea_number(), None),
             competence: vec![]
-        };
+        };  
     }
     
     pub fn new_with_check() -> Self {
@@ -37,8 +44,17 @@ impl Pers {
         while !joueur.is_valid_char() {
             joueur = Pers::new(String::from("théo"));
         }
-        println!("{:?}", joueur.get_force());
+        joueur.set_modificateur();
         return joueur;
+    }
+
+    fn set_modificateur(&mut self) {
+        self.force.1 = Some(Pers::get_modificateur(self.force.0));
+        self.dexterite.1 = Some(Pers::get_modificateur(self.dexterite.0));
+        self.constitution.1 = Some(Pers::get_modificateur(self.constitution.0));
+        self.intelligence.1 = Some(Pers::get_modificateur(self.intelligence.0));
+        self.sagesse.1 = Some(Pers::get_modificateur(self.sagesse.0));
+        self.charisme.1 = Some(Pers::get_modificateur(self.charisme.0));
     }
 
     fn alea_number() -> u8 {
@@ -60,34 +76,30 @@ impl Pers {
     }
     
     fn is_valid_char(&self) -> bool {
-        
-        let mut sum = 0;
-    
-        sum = self.force + self.dexterite + self.constitution + self.intelligence + self.sagesse + self.charisme;
+
+        let sum = self.force.0 + self.dexterite.0 + self.constitution.0 + self.intelligence.0 + self.sagesse.0 + self.charisme.0;
     
         if sum < 60 || sum > 80 { return false }
-        
         return true;
     }
 
-    pub fn get_force(&self) -> (u8, i8) {
-        let mut test = HashMap::from([]);
-        return (self.force, Pers::get_modificateur(self.force));
+    pub fn get_force(&self) -> (u8, Option<i8>) {
+        return self.force;
     }
-    pub fn get_dexterite(&self) -> (u8, i8) {
-        return (self.dexterite, Pers::get_modificateur(self.dexterite));
+    pub fn get_dexterite(&self) -> (u8, Option<i8>) {
+        return self.dexterite;
     }
-    pub fn get_constitution(&self) -> (u8, i8) {
-        return (self.constitution, Pers::get_modificateur(self.constitution));
+    pub fn get_constitution(&self) -> (u8, Option<i8>) {
+        return self.constitution;
     }
-    pub fn get_intelligence(&self) -> (u8, i8) {
-        return (self.intelligence, Pers::get_modificateur(self.intelligence));
+    pub fn get_intelligence(&self) -> (u8, Option<i8>) {
+        return self.intelligence;
     }
-    pub fn get_sagesse(&self) -> (u8, i8) {
-        return (self.sagesse, Pers::get_modificateur(self.sagesse));
+    pub fn get_sagesse(&self) -> (u8, Option<i8>) {
+        return self.sagesse;
     }
-    pub fn get_charisme(&self) -> (u8, i8) {
-        return (self.charisme, Pers::get_modificateur(self.charisme));
+    pub fn get_charisme(&self) -> (u8, Option<i8>) {
+        return self.charisme;
     }
 
     fn get_modificateur(value: u8) -> i8 {
@@ -106,18 +118,35 @@ impl Pers {
 }
 
 impl Index<&str> for Pers {
-    type Output = u8;
+    type Output = i8;
 
-    fn index(&self, string: &str) -> &u8 {
+    fn index(&self, string: &str) -> &i8 {
         match string {
-            "force" => { &self.force },
-            _ => return &44,
+            "force" => { match self.force.1.as_ref() {
+                Some(value) => return &value,
+                None => { println!("error no value"); return &0 },
+            } },
+            "dexterite" => { match self.dexterite.1.as_ref() {
+                Some(value) => return &value,
+                None => { println!("error no value"); return &0 },
+            } },
+            "constitution" => { match self.constitution.1.as_ref() {
+                Some(value) => return &value,
+                None => { println!("error no value"); return &0 },
+            } },
+            "intelligence" => { match self.intelligence.1.as_ref() {
+                Some(value) => return &value,
+                None => { println!("error no value"); return &0 },
+            } },
+            "sagesse" => { match self.sagesse.1.as_ref() {
+                Some(value) => return &value,
+                None => { println!("error no value"); return &0 },
+            } },
+            "charisme" => { match self.charisme.1.as_ref() {
+                Some(value) => return &value,
+                None => { println!("error no value"); return &0 },
+            } },
+            _ => { println!("error no value"); return &0; },
         }
     }
 }
-/*
-"dexterite" => &self.get_dexterite().1,
-            "constitution" => &self.get_constitution().1,
-            "intelligence" => &self.get_intelligence().1,
-            "sagesse" => &self.get_sagesse().1,
-            "charisme" => &self.get_charisme().1,*/

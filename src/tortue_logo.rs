@@ -1,24 +1,10 @@
 /* Question 1 */
-enum Instruction {
+pub enum Instruction {
     Avance(i32),
     Tourne,
 }
 
-pub fn start(){
-
-    let programme = vec![
-        Instruction::Avance(10),
-        Instruction::Tourne,
-        Instruction::Avance(5),
-        Instruction::Tourne,
-        Instruction::Avance(15)];
-
-        let position = execute_logo(&programme);
-
-        println!("Coordonnée : {:?}", position);
-}
-
-fn execute_logo(programme: &Vec<Instruction>) -> (i32, i32) {
+pub fn execute_logo(programme: &Vec<Instruction>) -> (i32, i32) {
 
     /* (x, y) */
     let mut position = (0, 0);
