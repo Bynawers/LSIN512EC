@@ -1,75 +1,123 @@
 use rand::{thread_rng, Rng};
+use std::collections::HashMap;
+use std::ops::Index;
 
 #[derive(Debug)]
 pub struct Pers {
     nom: String,
-    force: u8,
-    dexterite: u8,
-    constitution: u8,
-    intelligence: u8,
-    sagesse: u8,
-    charisme: u8,
-    competence: Vec<Competence>
+    characteristique: HashMap<u32, BuildingType>
 }
 
 #[derive(Debug)]
-pub enum Competence{
+pub enum Competence {
     Acrobaties,
     Arcanes
 }
 
-fn alea_number() -> u8 {
+impl Pers {
 
-    let mut rng = thread_rng();
+    fn new(nom: String) -> Self {
 
-    let mut alea: [u8; 3] = [0, 0, 0];
-    let mut number = 0;
-
-    for _ in 0..4 {
-        number = rng.gen_range(0, 6);
-
-        for j in 0..3 {
-            if alea[j] < number { alea[j] = number; }
-        }
-        return 0;
+        return Pers {
+            nom: nom,
+            force: Pers::alea_number(),
+            dexterite: Pers::alea_number(),
+            constitution: Pers::alea_number(),
+            intelligence: Pers::alea_number(),
+            sagesse: Pers::alea_number(),
+            charisme: Pers::alea_number(),
+            competence: vec![]
+        };
     }
-
-    return alea[0] + alea[1] + alea[2];
-}
-
-pub fn new(nom: String) -> Pers {
-
-    return Pers {
-        nom: nom,
-        force: alea_number(),
-        dexterite: alea_number(),
-        constitution: alea_number(),
-        intelligence: alea_number(),
-        sagesse: alea_number(),
-        charisme: alea_number(),
-        competence: vec![]
-    };
-}
-
-pub fn is_valid_char(joueur: &Pers) -> bool {
-
-    let mut sum = 0;
-
-    sum = joueur.force + joueur.dexterite + joueur.constitution + joueur.intelligence + joueur.sagesse + joueur.charisme;
-
-    if sum < 60 || sum > 80 { return false }
     
-    return true;
-}
-
-pub fn new_with_check() -> Pers {
-
-    let mut joueur = new(String::from("théo"));
-
-    while !is_valid_char(&joueur) {
-        joueur = new(String::from("théo"));
+    pub fn new_with_check() -> Self {
+    
+        let mut joueur = Pers::new(String::from("théo"));
+    
+        while !joueur.is_valid_char() {
+            joueur = Pers::new(String::from("théo"));
+        }
+        println!("{:?}", joueur.get_force());
+        return joueur;
     }
 
-    return joueur;
+    fn alea_number() -> u8 {
 
+        let mut rng = thread_rng();
+    
+        let mut alea: [u8; 3] = [rng.gen_range(0, 6), rng.gen_range(0, 6), rng.gen_range(0, 6)];
+        // (value, index)
+        let mut index_min = (alea[0], 0);
+        let number = rng.gen_range(0, 6);
+    
+        for j in 1..3 {
+            if alea[j] < index_min.0 { index_min.0 = alea[j]; index_min.1 = j }
+        }
+
+        if index_min.0 < number { alea[index_min.1] = number }
+    
+        return alea[0] + alea[1] + alea[2];
+    }
+    
+    fn is_valid_char(&self) -> bool {
+        
+        let mut sum = 0;
+    
+        sum = self.force + self.dexterite + self.constitution + self.intelligence + self.sagesse + self.charisme;
+    
+        if sum < 60 || sum > 80 { return false }
+        
+        return true;
+    }
+
+    pub fn get_force(&self) -> (u8, i8) {
+        let mut test = HashMap::from([]);
+        return (self.force, Pers::get_modificateur(self.force));
+    }
+    pub fn get_dexterite(&self) -> (u8, i8) {
+        return (self.dexterite, Pers::get_modificateur(self.dexterite));
+    }
+    pub fn get_constitution(&self) -> (u8, i8) {
+        return (self.constitution, Pers::get_modificateur(self.constitution));
+    }
+    pub fn get_intelligence(&self) -> (u8, i8) {
+        return (self.intelligence, Pers::get_modificateur(self.intelligence));
+    }
+    pub fn get_sagesse(&self) -> (u8, i8) {
+        return (self.sagesse, Pers::get_modificateur(self.sagesse));
+    }
+    pub fn get_charisme(&self) -> (u8, i8) {
+        return (self.charisme, Pers::get_modificateur(self.charisme));
+    }
+
+    fn get_modificateur(value: u8) -> i8 {
+
+        let mut modificateur = 0;
+
+        match value {
+            2 | 3 => modificateur = -4,
+            4..=9 => modificateur = -3,
+            10..=19 => modificateur = 0,
+            20 => modificateur = 5,
+            _ => println!("error modificateur"),
+        }
+        return modificateur;
+    }
 }
+
+impl Index<&str> for Pers {
+    type Output = u8;
+
+    fn index(&self, string: &str) -> &u8 {
+        match string {
+            "force" => { &self.force },
+            _ => return &44,
+        }
+    }
+}
+/*
+"dexterite" => &self.get_dexterite().1,
+            "constitution" => &self.get_constitution().1,
+            "intelligence" => &self.get_intelligence().1,
+            "sagesse" => &self.get_sagesse().1,
+            "charisme" => &self.get_charisme().1,*/
