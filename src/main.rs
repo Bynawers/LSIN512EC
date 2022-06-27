@@ -47,4 +47,27 @@ mod test {
         assert_eq!(joueur["sagesse"], joueur.get_sagesse().1.unwrap());
         assert_eq!(joueur["charisme"], joueur.get_charisme().1.unwrap());
     }
+    #[test]
+    fn jeu_de_role_competence() {
+        let mut joueur = jeu_de_role::Pers::new_with_check();
+        joueur.add_competence(jeu_de_role::Competence::Combat);
+        let force_avant_comp = joueur.get_force().0;
+        joueur.add_competence(jeu_de_role::Competence::Combat);
+        joueur.add_competence(jeu_de_role::Competence::Acrobaties);
+        
+        if joueur.get_force().0 != 20 {
+            assert_eq!(joueur.get_force().0, force_avant_comp + 3);
+        }
+        assert!(joueur.get_competence().contains(&jeu_de_role::Competence::Combat));
+        assert!(joueur.get_competence().contains(&jeu_de_role::Competence::Acrobaties));
+        assert!(!joueur.get_competence().contains(&jeu_de_role::Competence::Arcanes));
+    }
+    #[test]
+    fn jeu_de_role_jet_competence() {
+        let mut joueur = jeu_de_role::Pers::new_with_check();
+        joueur.add_competence(jeu_de_role::Competence::Combat);
+        assert_eq!(joueur.jet_competence(jeu_de_role::Competence::Combat, 0), true);
+        assert_eq!(joueur.jet_competence(jeu_de_role::Competence::Arcanes, 20), false);
+    }
+
 }

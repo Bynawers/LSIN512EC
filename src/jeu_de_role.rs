@@ -15,10 +15,15 @@ pub struct Pers {
 }
 
 #[allow(dead_code)]
+#[derive(PartialEq)]
+#[derive(Clone)]
 #[derive(Debug)]
 pub enum Competence {
     Acrobaties,
-    Arcanes
+    Arcanes,
+    Combat,
+    Commandement,
+    Volonte
 }
 
 impl Pers {
@@ -101,6 +106,14 @@ impl Pers {
     pub fn get_charisme(&self) -> (u8, Option<i8>) {
         return self.charisme;
     }
+    pub fn get_competence(&self) -> Vec<Competence> {
+        let mut competence = Vec::new();
+
+        for comp in &self.competence {
+            competence.push(comp.clone());
+        }
+        return competence;
+    }
 
     fn get_modificateur(value: u8) -> i8 {
 
@@ -115,7 +128,82 @@ impl Pers {
         }
         return modificateur;
     }
+
+    pub fn jet_characteristique(characteristique: (u8, Option<i8>), difficulte: i8) -> bool {
+
+        if characteristique.1 == None {
+            println!("Error");
+        }
+
+        let mut rng = thread_rng();
+        let value = rng.gen_range(0, 20) + characteristique.1.unwrap();
+
+        if value >= difficulte { return true; }
+        else { return false; }
+    }
+
+    pub fn jet_competence(&self, competence: Competence, difficulte: u8) -> bool {
+        
+        let mut rng = thread_rng();
+        let mut value = rng.gen_range(0, 20);
+
+        if self.competence.contains(&competence) {
+            value += Pers::get_bonus_competence(competence);
+        }
+        if value >= difficulte { return true; }
+        else { return false; }
+    }
+
+    pub fn add_competence(&mut self, competence: Competence){
+
+        for competence_joueur in &self.competence {
+
+            if competence == *competence_joueur { 
+
+                println!("Competence add! {:?}", competence);
+
+                match competence {
+                    Competence::Acrobaties => { 
+                        self.dexterite.0 += Pers::get_bonus_competence(Competence::Acrobaties);
+                        if self.dexterite.0 > 20 { self.dexterite.0 = 20; }
+                    },
+                    Competence::Arcanes => { 
+                        self.intelligence.0 += Pers::get_bonus_competence(Competence::Arcanes);; 
+                        if self.intelligence.0 > 20 { self.intelligence.0 = 20; }
+                    },
+                    Competence::Combat => {
+                        self.force.0 += Pers::get_bonus_competence(Competence::Combat);;
+                        if self.force.0 > 20 { self.force.0 = 20; }
+                    },
+                    Competence::Commandement => {
+                        self.charisme.0 += Pers::get_bonus_competence(Competence::Commandement);;
+                        if self.charisme.0 > 20 { self.charisme.0 = 20; }
+                    }, 
+                    Competence::Volonte => {
+                        self.sagesse.0 += Pers::get_bonus_competence(Competence::Volonte);;
+                        if self.sagesse.0 > 20 { self.sagesse.0 = 20; }
+                    },
+                }
+                return;
+            }
+        }
+        self.competence.push(competence);
+    }
+
+    fn get_bonus_competence(competence: Competence) -> u8 {
+        let mut bonus = 0;
+
+        match competence {
+            Competence::Acrobaties => bonus = 4,
+            Competence::Arcanes => bonus = 3,
+            Competence::Combat => bonus = 3,
+            Competence::Commandement => bonus = 2,
+            Competence::Volonte => bonus = 3,
+        }
+        return bonus;
+    }
 }
+
 
 impl Index<&str> for Pers {
     type Output = i8;
